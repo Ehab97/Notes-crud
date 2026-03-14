@@ -18,6 +18,10 @@ dist/
 *.log
 npm-debug.log*
 
+# SQLite runtime files
+data/*.db-shm
+data/*.db-wal
+
 # Playwright
 test-results/
 playwright-report/
