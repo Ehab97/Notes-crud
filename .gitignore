@@ -22,5 +22,5 @@ npm-debug.log*
 test-results/
 playwright-report/
 
-# Claude settings
-.claude/
+# Claude settings (only ignore local user settings, not project hooks)
+.claude/settings.local.json
