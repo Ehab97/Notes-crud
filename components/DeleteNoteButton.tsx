@@ -2,9 +2,11 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from './Toast';
 
 export default function DeleteNoteButton({ noteId }: { noteId: string }) {
   const router = useRouter();
+  const toast = useToast();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -15,10 +17,13 @@ export default function DeleteNoteButton({ noteId }: { noteId: string }) {
     const res = await fetch(`/api/notes/${noteId}`, { method: 'DELETE' });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? 'Failed to delete note.');
+      const msg = data.error ?? 'Failed to delete note.';
+      setError(msg);
+      toast(msg, 'error');
       setLoading(false);
       return;
     }
+    toast('Note deleted.', 'success');
     router.push('/dashboard');
   }
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from './Toast';
 
 interface ShareToggleProps {
   noteId: string;
@@ -9,6 +10,7 @@ interface ShareToggleProps {
 }
 
 export default function ShareToggle({ noteId, initialIsPublic, initialSlug }: ShareToggleProps) {
+  const toast = useToast();
   const [isPublic, setIsPublic] = useState(initialIsPublic);
   const [slug, setSlug] = useState<string | null>(initialSlug);
   const [loading, setLoading] = useState(false);
@@ -19,24 +21,37 @@ export default function ShareToggle({ noteId, initialIsPublic, initialSlug }: Sh
   async function handleEnable() {
     setLoading(true);
     const res = await fetch(`/api/notes/${noteId}/share`, { method: 'POST' });
+    if (!res.ok) {
+      toast('Failed to enable sharing.', 'error');
+      setLoading(false);
+      return;
+    }
     const data = await res.json();
     setSlug(data.slug);
     setIsPublic(true);
     setLoading(false);
+    toast('Note is now public.', 'success');
   }
 
   async function handleDisable() {
     setLoading(true);
-    await fetch(`/api/notes/${noteId}/share`, { method: 'DELETE' });
+    const res = await fetch(`/api/notes/${noteId}/share`, { method: 'DELETE' });
+    if (!res.ok) {
+      toast('Failed to disable sharing.', 'error');
+      setLoading(false);
+      return;
+    }
     setSlug(null);
     setIsPublic(false);
     setLoading(false);
+    toast('Note is now private.', 'success');
   }
 
   async function handleCopy() {
     if (!publicUrl) return;
     await navigator.clipboard.writeText(publicUrl);
     setCopied(true);
+    toast('Link copied to clipboard.', 'success');
     setTimeout(() => setCopied(false), 2000);
   }
 

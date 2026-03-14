@@ -6,9 +6,11 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import type { Note } from '@/lib/notes';
 import EditorToolbar from './EditorToolbar';
+import { useToast } from './Toast';
 
 export default function NoteEditorEdit({ note }: { note: Note }) {
   const router = useRouter();
+  const toast = useToast();
   const [title, setTitle] = useState(note.title);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -44,11 +46,14 @@ export default function NoteEditorEdit({ note }: { note: Note }) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? 'Failed to save note.');
+      const msg = data.error ?? 'Failed to save note.';
+      setError(msg);
+      toast(msg, 'error');
       setLoading(false);
       return;
     }
 
+    toast('Note saved successfully.', 'success');
     router.push(`/notes/${note.id}`);
   }
 
